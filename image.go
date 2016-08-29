@@ -5,7 +5,7 @@ package poppler
 // #include <glib.h>
 import "C"
 import "unsafe"
-import "github.com/ungerik/go-cairo"
+import "github.com/mpetri/go-cairo"
 
 // Image
 
