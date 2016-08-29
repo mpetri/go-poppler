@@ -5,10 +5,29 @@ package poppler
 // #include <glib.h>
 import "C"
 import "unsafe"
+import "github.com/mpetri/go-cairo"
+import "image"
 //import "fmt"
 
 type Page struct {
 	p *C.struct__PopplerPage
+}
+
+func (p *Page) Render(ImageDPI float64 ) image.Image {
+  w,h := p.Size()
+  pointsPerInch := 72.0
+  surface := cairo.NewSurface(cairo.FORMAT_ARGB32,int(ImageDPI*w/pointsPerInch),int(ImageDPI*h/pointsPerInch))
+  defer surface.Destroy()
+  surface.Scale(ImageDPI/pointsPerInch,ImageDPI/pointsPerInch)
+  surface.Save()
+  context := surface.Context()
+  C.poppler_page_render(p.p,context)
+  surface.Restore()
+  surface.SetOperator(cairo.OPERATOR_DEST_OVER)
+  surface.SetSourceRGB(1,1,1)
+  surface.Paint()
+  image := surface.GetImage()
+  return image
 }
 
 func (p *Page) Text() string {
